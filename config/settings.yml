@@ -1,0 +1,19 @@
+plugins:
+  custom_webhook_enabled:
+    default: false
+    client: true
+  custom_webhook_url:
+    default: ""
+    secret: true
+  custom_webhook_categories:
+    type: category_list
+    default: ""
+    description: "Leave empty to send notifications for all categories"
+  custom_webhook_delay_seconds:
+    default: 5
+    min: 0
+    max: 300
+  custom_webhook_excerpt_length:
+    default: 400
+    min: 100
+    max: 2000

@@ -1,0 +1,7 @@
+en:
+  site_settings:
+    custom_webhook_enabled: "Enable custom webhook notifications"
+    custom_webhook_url: "Webhook URL to send notifications to"
+    custom_webhook_categories: "Only send notifications for posts in these categories (leave empty for all)"
+    custom_webhook_delay_seconds: "Delay in seconds before sending notification (allows for edits)"
+    custom_webhook_excerpt_length: "Maximum length of post content in webhook payload"
