@@ -21,7 +21,7 @@ hooks:
     - exec:
         cd: $home/plugins
         cmd:
-          - git clone https://github.com/choo121600/discourse-custom-webhook.git
+          - git clone https://github.com/AirflowKorea/discourse-custom-webhook.git
 ```
 
 그 후 rebuild:
@@ -35,7 +35,7 @@ cd /var/discourse
 
 ```bash
 cd /path/to/discourse/plugins
-git clone https://github.com/choo121600/discourse-custom-webhook.git
+git clone https://github.com/AirflowKorea/discourse-custom-webhook.git
 ```
 
 ## 설정
