@@ -17,3 +17,8 @@ plugins:
     default: 400
     min: 100
     max: 2000
+  custom_webhook_secret:
+    default: ""
+    secret: true
+  custom_webhook_message_content:
+    default: ""

@@ -5,3 +5,5 @@ en:
     custom_webhook_categories: "Only send notifications for posts in these categories (leave empty for all)"
     custom_webhook_delay_seconds: "Delay in seconds before sending notification (allows for edits)"
     custom_webhook_excerpt_length: "Maximum length of post content in webhook payload"
+    custom_webhook_secret: "Secret key for X-Webhook-Secret header authentication"
+    custom_webhook_message_content: "Message content to display above the embed"

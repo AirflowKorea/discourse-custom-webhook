@@ -12,6 +12,19 @@ after_initialize do
   module ::DiscourseCustomWebhook
     PLUGIN_NAME = "discourse-custom-webhook"
 
+    def self.ensure_protocol(url)
+      return nil if url.blank?
+      url.start_with?("//") ? "https:#{url}" : url
+    end
+
+    def self.formatted_display_name(user)
+      if user.name.present? && user.name != user.username
+        "@#{user.username} (#{user.name})"
+      else
+        "@#{user.username}"
+      end
+    end
+
     def self.send_notification(post)
       return unless SiteSetting.custom_webhook_enabled
       return if SiteSetting.custom_webhook_url.blank?
@@ -36,6 +49,11 @@ after_initialize do
 
           request = Net::HTTP::Post.new(uri.request_uri)
           request["Content-Type"] = "application/json"
+
+          if SiteSetting.custom_webhook_secret.present?
+            request["X-Webhook-Secret"] = SiteSetting.custom_webhook_secret
+          end
+
           request.body = payload.to_json
 
           response = http.request(request)
@@ -52,31 +70,48 @@ after_initialize do
     def self.build_payload(post)
       topic = post.topic
       user = post.user
+      category = topic.category
+
+      # Build title with category and tags
+      title_parts = [topic.title]
+
+      if category.present?
+        category_name = category.parent_category.present? ? "#{category.parent_category.name}/#{category.name}" : category.name
+        title_parts << "[#{category_name}]"
+      end
+
+      tags = topic.tags.pluck(:name)
+      title_parts << tags.join(", ") if tags.present?
+
+      title = title_parts.join(" ")
+
+      # Get category color (default to Discord blurple if no category)
+      embed_color = if category&.color.present?
+        category.color.to_i(16)
+      else
+        5793266 # Discord blurple #5865F2
+      end
+
+      # Build author info
+      base_url = Discourse.base_url
+      author_url = "#{base_url}/u/#{user.username}"
+      avatar_url = ensure_protocol(user.small_avatar_url)
 
       {
-        event: post.is_first_post? ? "topic_created" : "post_created",
-        post: {
-          id: post.id,
-          post_number: post.post_number,
-          url: post.full_url,
-          raw: post.raw.truncate(SiteSetting.custom_webhook_excerpt_length),
-          cooked: post.cooked.truncate(SiteSetting.custom_webhook_excerpt_length * 2),
-          created_at: post.created_at.iso8601
-        },
-        topic: {
-          id: topic.id,
-          title: topic.title,
-          url: topic.url,
-          category_id: topic.category_id,
-          category_name: topic.category&.name,
-          tags: topic.tags.pluck(:name)
-        },
-        user: {
-          id: user.id,
-          username: user.username,
-          name: user.name,
-          avatar_url: user.small_avatar_url
-        }
+        content: SiteSetting.custom_webhook_message_content.presence || "",
+        embeds: [
+          {
+            title: title,
+            color: embed_color,
+            description: post.excerpt(SiteSetting.custom_webhook_excerpt_length, keep_newlines: true, keep_emoji_images: false) || "",
+            url: post.full_url,
+            author: {
+              name: formatted_display_name(user),
+              url: author_url,
+              icon_url: avatar_url
+            }
+          }
+        ]
       }
     end
   end
