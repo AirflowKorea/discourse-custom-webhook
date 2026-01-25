@@ -4,9 +4,9 @@ class CreateCustomWebhookRules < ActiveRecord::Migration[7.0]
   def change
     create_table :custom_webhook_rules do |t|
       t.references :custom_webhook_channel, null: false, foreign_key: { on_delete: :cascade }
-      t.integer :filter, default: 0, null: false  # 0: watch (all), 1: follow (first post only)
+      t.integer :filter, default: 0, null: false
       t.integer :category_id
-      t.string :tags, array: true, default: []
+      t.text :tags
       t.integer :priority, default: 0
       t.timestamps
     end

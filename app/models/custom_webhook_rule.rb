@@ -15,9 +15,19 @@ module DiscourseCustomWebhook
     enum filter: { watch: 0, follow: 1, mute: 2 }
 
     validates :filter, presence: true
-    validate :category_or_tags_present
 
     scope :ordered, -> { order(priority: :desc, created_at: :asc) }
+
+    # Serialize tags as JSON
+    def tags
+      value = read_attribute(:tags)
+      return [] if value.blank?
+      JSON.parse(value) rescue []
+    end
+
+    def tags=(value)
+      write_attribute(:tags, Array(value).compact_blank.to_json)
+    end
 
     def matches_post?(post)
       return false if mute?
@@ -29,17 +39,12 @@ module DiscourseCustomWebhook
 
     private
 
-    def category_or_tags_present
-      # Allow rules that apply to all categories and tags (catch-all rule)
-      true
-    end
-
     def matches_filter?(post)
       case filter
       when "watch"
-        true  # All posts
+        true
       when "follow"
-        post.is_first_post?  # Only first post (new topics)
+        post.is_first_post?
       when "mute"
         false
       else
@@ -53,7 +58,6 @@ module DiscourseCustomWebhook
       topic_category_id = post.topic&.category_id
       return false if topic_category_id.blank?
 
-      # Check if matches category or parent category
       category = Category.find_by(id: topic_category_id)
       return false unless category
 
@@ -61,10 +65,11 @@ module DiscourseCustomWebhook
     end
 
     def matches_tags?(post)
-      return true if tags.blank? || tags.empty?
+      tag_list = tags
+      return true if tag_list.blank? || tag_list.empty?
 
       post_tags = post.topic&.tags&.pluck(:name) || []
-      (tags & post_tags).any?
+      (tag_list & post_tags).any?
     end
   end
 end
