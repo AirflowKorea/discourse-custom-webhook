@@ -1,0 +1,252 @@
+<section class="custom-webhook-admin admin-detail">
+  <h1>{{i18n "admin.custom_webhook.title"}}</h1>
+  <p class="desc">{{i18n "admin.custom_webhook.description"}}</p>
+
+  <div class="admin-controls">
+    <DButton
+      @action={{this.newChannel}}
+      @icon="plus"
+      @label="admin.custom_webhook.channels.new"
+      class="btn-primary"
+    />
+  </div>
+
+  {{#if this.editingChannel}}
+    <div class="channel-form">
+      <h3>
+        {{#if this.isNewChannel}}
+          {{i18n "admin.custom_webhook.channels.new"}}
+        {{else}}
+          {{i18n "admin.custom_webhook.channels.edit"}}
+        {{/if}}
+      </h3>
+
+      <div class="form-group">
+        <label>{{i18n "admin.custom_webhook.channels.name"}}</label>
+        <input
+          type="text"
+          value={{this.editingChannel.name}}
+          placeholder={{i18n "admin.custom_webhook.channels.name_placeholder"}}
+          {{on "input" (fn this.updateEditingChannelField "name")}}
+        />
+      </div>
+
+      <div class="form-group">
+        <label>{{i18n "admin.custom_webhook.channels.webhook_url"}}</label>
+        <input
+          type="url"
+          value={{this.editingChannel.webhook_url}}
+          placeholder={{i18n "admin.custom_webhook.channels.webhook_url_placeholder"}}
+          {{on "input" (fn this.updateEditingChannelField "webhook_url")}}
+        />
+      </div>
+
+      <div class="form-group">
+        <label>{{i18n "admin.custom_webhook.channels.webhook_secret"}}</label>
+        <input
+          type="text"
+          value={{this.editingChannel.webhook_secret}}
+          placeholder={{i18n "admin.custom_webhook.channels.webhook_secret_placeholder"}}
+          {{on "input" (fn this.updateEditingChannelField "webhook_secret")}}
+        />
+        <div class="form-hint">X-Webhook-Secret header</div>
+      </div>
+
+      <div class="form-group">
+        <label>{{i18n "admin.custom_webhook.channels.message_content"}}</label>
+        <input
+          type="text"
+          value={{this.editingChannel.message_content}}
+          placeholder={{i18n "admin.custom_webhook.channels.message_content_placeholder"}}
+          {{on "input" (fn this.updateEditingChannelField "message_content")}}
+        />
+      </div>
+
+      <div class="form-group">
+        <label>{{i18n "admin.custom_webhook.channels.excerpt_length"}}</label>
+        <input
+          type="number"
+          value={{this.editingChannel.excerpt_length}}
+          {{on "input" (fn this.updateEditingChannelField "excerpt_length")}}
+        />
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={{this.editingChannel.enabled}}
+            {{on "change" this.updateEditingChannelEnabled}}
+          />
+          {{i18n "admin.custom_webhook.channels.enabled"}}
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <DButton
+          @action={{this.saveChannel}}
+          @icon="check"
+          @label="save"
+          class="btn-primary"
+        />
+        <DButton
+          @action={{this.cancelEditChannel}}
+          @label="cancel"
+        />
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if this.model.length}}
+    <div class="channels-list">
+      {{#each this.model as |channel|}}
+        <div class="channel-item {{unless channel.enabled 'disabled'}}">
+          <div class="channel-header">
+            <span class="channel-name">{{channel.name}}</span>
+            <div class="channel-actions">
+              <DButton
+                @action={{fn this.testChannel channel}}
+                @icon="paper-plane"
+                @title="admin.custom_webhook.channels.test"
+                class="btn-small"
+              />
+              <DButton
+                @action={{fn this.editChannel channel}}
+                @icon="pencil"
+                class="btn-small"
+              />
+              <DButton
+                @action={{fn this.deleteChannel channel}}
+                @icon="trash-can"
+                class="btn-small btn-danger"
+              />
+            </div>
+          </div>
+
+          <div class="channel-url">{{channel.webhook_url}}</div>
+
+          <span class="channel-status {{if channel.enabled 'enabled' 'disabled'}}">
+            {{#if channel.enabled}}
+              Enabled
+            {{else}}
+              Disabled
+            {{/if}}
+          </span>
+
+          <div class="rules-section">
+            <div class="rules-header">
+              <h4>{{i18n "admin.custom_webhook.rules.title"}} ({{if channel.rules channel.rules.length 0}})</h4>
+              <DButton
+                @action={{fn this.newRule channel}}
+                @icon="plus"
+                @label="admin.custom_webhook.rules.new"
+                class="btn-small"
+              />
+            </div>
+
+            {{#if channel.rules.length}}
+              <div class="rules-list">
+                {{#each channel.rules as |rule|}}
+                  <div class="rule-item">
+                    <div class="rule-info">
+                      <span class="rule-filter {{rule.filter}}">{{rule.filter}}</span>
+                      <span class="rule-category">
+                        {{#if rule.category_name}}
+                          {{rule.category_name}}
+                        {{else}}
+                          {{i18n "admin.custom_webhook.rules.category_any"}}
+                        {{/if}}
+                      </span>
+                      <span class="rule-tags">
+                        {{#if rule.tags.length}}
+                          {{rule.tags}}
+                        {{else}}
+                          {{i18n "admin.custom_webhook.rules.tags_any"}}
+                        {{/if}}
+                      </span>
+                    </div>
+                    <div class="rule-actions">
+                      <DButton
+                        @action={{fn this.editRule channel rule}}
+                        @icon="pencil"
+                        class="btn-small"
+                      />
+                      <DButton
+                        @action={{fn this.deleteRule channel rule}}
+                        @icon="trash-can"
+                        class="btn-small btn-danger"
+                      />
+                    </div>
+                  </div>
+                {{/each}}
+              </div>
+            {{else}}
+              <p class="no-rules">{{i18n "admin.custom_webhook.rules.no_rules"}}</p>
+            {{/if}}
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="no-channels">
+      <p>{{i18n "admin.custom_webhook.channels.no_channels"}}</p>
+    </div>
+  {{/if}}
+
+  {{#if this.editingRule}}
+    <DModal
+      @title={{if this.isNewRule (i18n "admin.custom_webhook.rules.new") (i18n "admin.custom_webhook.rules.edit")}}
+      @closeModal={{this.cancelEditRule}}
+    >
+      <:body>
+        <div class="rule-form">
+          <div class="form-group">
+            <label>{{i18n "admin.custom_webhook.rules.filter"}}</label>
+            <ComboBox
+              @content={{this.filterOptions}}
+              @value={{this.editingRule.data.filter}}
+              @onChange={{this.updateRuleFilter}}
+            />
+          </div>
+
+          <div class="form-group">
+            <label>{{i18n "admin.custom_webhook.rules.category"}}</label>
+            <CategoryChooser
+              @value={{this.editingRule.data.category_id}}
+              @onChange={{this.updateRuleCategory}}
+            />
+          </div>
+
+          <div class="form-group">
+            <label>{{i18n "admin.custom_webhook.rules.tags"}}</label>
+            <TagChooser
+              @tags={{this.editingRule.data.tags}}
+              @onChange={{this.updateRuleTags}}
+            />
+          </div>
+
+          <div class="form-group">
+            <label>{{i18n "admin.custom_webhook.rules.priority"}}</label>
+            <input
+              type="number"
+              value={{this.editingRule.data.priority}}
+              {{on "input" this.updateRulePriority}}
+            />
+          </div>
+        </div>
+      </:body>
+      <:footer>
+        <DButton
+          @action={{this.saveRule}}
+          @icon="check"
+          @label="save"
+          class="btn-primary"
+        />
+        <DButton
+          @action={{this.cancelEditRule}}
+          @label="cancel"
+        />
+      </:footer>
+    </DModal>
+  {{/if}}
+</section>

@@ -1,0 +1,164 @@
+.custom-webhook-admin {
+  .channels-list {
+    margin-top: 1em;
+
+    .channel-item {
+      border: 1px solid var(--primary-low);
+      border-radius: 4px;
+      margin-bottom: 1em;
+      padding: 1em;
+      background: var(--secondary);
+
+      &.disabled {
+        opacity: 0.6;
+      }
+
+      .channel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5em;
+
+        .channel-name {
+          font-weight: bold;
+          font-size: 1.1em;
+        }
+
+        .channel-actions {
+          display: flex;
+          gap: 0.5em;
+        }
+      }
+
+      .channel-url {
+        color: var(--primary-medium);
+        font-size: 0.9em;
+        margin-bottom: 0.5em;
+        word-break: break-all;
+      }
+
+      .channel-status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 0.8em;
+
+        &.enabled {
+          background: var(--success);
+          color: var(--secondary);
+        }
+
+        &.disabled {
+          background: var(--danger);
+          color: var(--secondary);
+        }
+      }
+    }
+  }
+
+  .rules-section {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid var(--primary-low);
+
+    .rules-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5em;
+
+      h4 {
+        margin: 0;
+      }
+    }
+
+    .rules-list {
+      .rule-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5em;
+        background: var(--primary-very-low);
+        border-radius: 3px;
+        margin-bottom: 0.5em;
+
+        .rule-info {
+          display: flex;
+          gap: 1em;
+          flex-wrap: wrap;
+
+          .rule-filter {
+            font-weight: bold;
+
+            &.watch {
+              color: var(--success);
+            }
+
+            &.follow {
+              color: var(--tertiary);
+            }
+
+            &.mute {
+              color: var(--danger);
+            }
+          }
+
+          .rule-category,
+          .rule-tags {
+            color: var(--primary-medium);
+          }
+        }
+
+        .rule-actions {
+          display: flex;
+          gap: 0.5em;
+        }
+      }
+    }
+
+    .no-rules {
+      color: var(--primary-medium);
+      font-style: italic;
+    }
+  }
+
+  .no-channels {
+    text-align: center;
+    padding: 2em;
+    color: var(--primary-medium);
+  }
+
+  .channel-form,
+  .rule-form {
+    .form-group {
+      margin-bottom: 1em;
+
+      label {
+        display: block;
+        margin-bottom: 0.3em;
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="url"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .form-hint {
+        font-size: 0.85em;
+        color: var(--primary-medium);
+        margin-top: 0.2em;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1.5em;
+    }
+  }
+}
