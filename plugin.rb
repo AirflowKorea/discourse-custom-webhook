@@ -304,13 +304,15 @@ after_initialize do
 
   # ========== ROUTES ==========
   Discourse::Application.routes.append do
-    scope "/admin/plugins/custom-webhook", defaults: { format: :json } do
-      resources :channels, controller: "discourse_custom_webhook/channels", only: [:index, :create, :update, :destroy] do
-        member do
-          post :test
-        end
-        resources :rules, controller: "discourse_custom_webhook/rules", only: [:create, :update, :destroy]
-      end
+    scope "/admin/plugins/custom-webhook", constraints: StaffConstraint.new do
+      get "/channels" => "discourse_custom_webhook/channels#index", defaults: { format: :json }
+      post "/channels" => "discourse_custom_webhook/channels#create", defaults: { format: :json }
+      put "/channels/:id" => "discourse_custom_webhook/channels#update", defaults: { format: :json }
+      delete "/channels/:id" => "discourse_custom_webhook/channels#destroy", defaults: { format: :json }
+      post "/channels/:id/test" => "discourse_custom_webhook/channels#test", defaults: { format: :json }
+      post "/channels/:channel_id/rules" => "discourse_custom_webhook/rules#create", defaults: { format: :json }
+      put "/channels/:channel_id/rules/:id" => "discourse_custom_webhook/rules#update", defaults: { format: :json }
+      delete "/channels/:channel_id/rules/:id" => "discourse_custom_webhook/rules#destroy", defaults: { format: :json }
     end
     get "/admin/plugins/custom-webhook" => "admin/plugins#index", constraints: StaffConstraint.new
     get "/admin/plugins/custom-webhook/*path" => "admin/plugins#index", constraints: StaffConstraint.new
