@@ -6,3 +6,4 @@ ko:
     test:
       success: "테스트 알림이 성공적으로 전송되었습니다"
       no_posts: "테스트할 게시글이 없습니다"
+      topic_not_found: "토픽을 찾을 수 없습니다"

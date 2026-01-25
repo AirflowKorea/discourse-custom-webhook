@@ -105,9 +105,9 @@
             <span class="channel-name">{{channel.name}}</span>
             <div class="channel-actions">
               <DButton
-                @action={{fn this.testChannel channel}}
+                @action={{fn this.openTestModal channel}}
                 @icon="paper-plane"
-                @title="admin.custom_webhook.channels.test"
+                @label="admin.custom_webhook.channels.test"
                 class="btn-small"
               />
               <DButton
@@ -193,6 +193,75 @@
     </div>
   {{/if}}
 
+  {{! Test Modal }}
+  {{#if this.testingChannel}}
+    <DModal
+      @title={{i18n "admin.custom_webhook.channels.test_title"}}
+      @closeModal={{this.cancelTest}}
+    >
+      <:body>
+        <div class="test-form">
+          <p>{{i18n "admin.custom_webhook.channels.test_description"}}</p>
+          <div class="form-group">
+            <label>{{i18n "admin.custom_webhook.channels.test_topic_search"}}</label>
+            <div class="topic-search-container">
+              {{#if this.testSelectedTopic}}
+                <div class="selected-topic">
+                  <span class="topic-title">{{this.testSelectedTopic.title}}</span>
+                  <DButton
+                    @action={{this.clearTestTopic}}
+                    @icon="xmark"
+                    class="btn-small btn-flat"
+                  />
+                </div>
+              {{else}}
+                <input
+                  type="text"
+                  value={{this.testSearchQuery}}
+                  placeholder={{i18n "admin.custom_webhook.channels.test_topic_placeholder"}}
+                  {{on "input" this.updateTestSearchQuery}}
+                  class="topic-search-input"
+                />
+                {{#if this.testSearchLoading}}
+                  <div class="search-loading">{{i18n "admin.custom_webhook.channels.test_searching"}}</div>
+                {{/if}}
+                {{#if this.testSearchResults.length}}
+                  <ul class="topic-search-results">
+                    {{#each this.testSearchResults as |topic|}}
+                      <li
+                        class="topic-result"
+                        {{on "click" (fn this.selectTestTopic topic)}}
+                        role="button"
+                      >
+                        <span class="topic-id">#{{topic.id}}</span>
+                        <span class="topic-title">{{topic.title}}</span>
+                      </li>
+                    {{/each}}
+                  </ul>
+                {{/if}}
+              {{/if}}
+            </div>
+            <div class="form-hint">{{i18n "admin.custom_webhook.channels.test_topic_hint"}}</div>
+          </div>
+        </div>
+      </:body>
+      <:footer>
+        <DButton
+          @action={{this.sendTest}}
+          @icon="paper-plane"
+          @label="admin.custom_webhook.channels.test_send"
+          @isLoading={{this.testLoading}}
+          class="btn-primary"
+        />
+        <DButton
+          @action={{this.cancelTest}}
+          @label="cancel"
+        />
+      </:footer>
+    </DModal>
+  {{/if}}
+
+  {{! Rule Edit Modal }}
   {{#if this.editingRule}}
     <DModal
       @title={{if this.isNewRule (i18n "admin.custom_webhook.rules.new") (i18n "admin.custom_webhook.rules.edit")}}

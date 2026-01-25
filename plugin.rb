@@ -238,11 +238,23 @@ after_initialize do
 
     def test
       channel = DiscourseCustomWebhook::Channel.find(params[:id])
-      post = Post.where(post_type: Post.types[:regular])
-                 .joins(:topic)
-                 .where.not(topics: { archetype: Archetype.private_message })
-                 .order(created_at: :desc)
-                 .first
+
+      # Find post from topic_id or use latest
+      post = nil
+      if params[:topic_id].present?
+        topic = Topic.find_by(id: params[:topic_id])
+        if topic.nil?
+          render json: { error: I18n.t("custom_webhook.test.topic_not_found") }, status: :unprocessable_entity
+          return
+        end
+        post = topic.posts.where(post_type: Post.types[:regular]).order(:post_number).first
+      else
+        post = Post.where(post_type: Post.types[:regular])
+                   .joins(:topic)
+                   .where.not(topics: { archetype: Archetype.private_message })
+                   .order(created_at: :desc)
+                   .first
+      end
 
       if post.nil?
         render json: { error: I18n.t("custom_webhook.test.no_posts") }, status: :unprocessable_entity
@@ -251,7 +263,7 @@ after_initialize do
 
       begin
         DiscourseCustomWebhook.send_to_channel(channel, post)
-        render json: { success: true }
+        render json: { success: true, topic_title: post.topic.title }
       rescue => e
         render json: { error: e.message }, status: :unprocessable_entity
       end

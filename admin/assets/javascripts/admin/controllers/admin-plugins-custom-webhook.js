@@ -5,6 +5,7 @@ import { tracked } from "@glimmer/tracking";
 import { A } from "@ember/array";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { cancel, debounce } from "@ember/runloop";
 import I18n from "discourse-i18n";
 
 export default class AdminPluginsCustomWebhookController extends Controller {
@@ -14,6 +15,15 @@ export default class AdminPluginsCustomWebhookController extends Controller {
   @tracked editingRule = null;
   @tracked isNewChannel = false;
   @tracked isNewRule = false;
+  @tracked testingChannel = null;
+  @tracked testTopicId = "";
+  @tracked testLoading = false;
+  @tracked testSearchQuery = "";
+  @tracked testSearchResults = [];
+  @tracked testSearchLoading = false;
+  @tracked testSelectedTopic = null;
+
+  _searchDebounce = null;
 
   get filterOptions() {
     return [
@@ -98,14 +108,127 @@ export default class AdminPluginsCustomWebhookController extends Controller {
   }
 
   @action
-  async testChannel(channel) {
+  openTestModal(channel) {
+    this.testingChannel = channel;
+    this.testTopicId = "";
+    this.testSearchQuery = "";
+    this.testSearchResults = [];
+    this.testSelectedTopic = null;
+  }
+
+  @action
+  cancelTest() {
+    if (this._searchDebounce) {
+      cancel(this._searchDebounce);
+    }
+    this.testingChannel = null;
+    this.testTopicId = "";
+    this.testSearchQuery = "";
+    this.testSearchResults = [];
+    this.testSelectedTopic = null;
+  }
+
+  @action
+  updateTestSearchQuery(event) {
+    const value = event.target.value;
+    this.testSearchQuery = value;
+
+    // Check if it's a URL or ID
+    const urlMatch = value.match(/\/t\/[^\/]+\/(\d+)/);
+    if (urlMatch) {
+      this.testTopicId = urlMatch[1];
+      this.testSearchResults = [];
+      return;
+    }
+
+    const idMatch = value.match(/^(\d+)$/);
+    if (idMatch) {
+      this.testTopicId = idMatch[1];
+      this.testSearchResults = [];
+      return;
+    }
+
+    // Otherwise, search for topics
+    this.testTopicId = "";
+    if (value.length >= 2) {
+      this._searchDebounce = debounce(this, this._performSearch, value, 300);
+    } else {
+      this.testSearchResults = [];
+    }
+  }
+
+  async _performSearch(query) {
+    if (!query || query.length < 2) {
+      this.testSearchResults = [];
+      return;
+    }
+
+    this.testSearchLoading = true;
     try {
-      await ajax(`/admin/plugins/custom-webhook/channels/${channel.id}/test`, {
-        type: "POST",
+      const result = await ajax("/search.json", {
+        data: { q: query },
       });
-      this.dialog.alert(I18n.t("admin.custom_webhook.channels.test_success"));
+
+      this.testSearchResults = (result.topics || []).slice(0, 10).map((topic) => ({
+        id: topic.id,
+        title: topic.title,
+        slug: topic.slug,
+        category_id: topic.category_id,
+      }));
+    } catch (e) {
+      this.testSearchResults = [];
+    } finally {
+      this.testSearchLoading = false;
+    }
+  }
+
+  @action
+  selectTestTopic(topic) {
+    this.testSelectedTopic = topic;
+    this.testTopicId = topic.id;
+    this.testSearchQuery = topic.title;
+    this.testSearchResults = [];
+  }
+
+  @action
+  clearTestTopic() {
+    this.testSelectedTopic = null;
+    this.testTopicId = "";
+    this.testSearchQuery = "";
+    this.testSearchResults = [];
+  }
+
+  @action
+  async sendTest() {
+    if (!this.testingChannel) return;
+
+    this.testLoading = true;
+    try {
+      const data = {};
+      if (this.testTopicId) {
+        data.topic_id = this.testTopicId;
+      }
+
+      const result = await ajax(
+        `/admin/plugins/custom-webhook/channels/${this.testingChannel.id}/test`,
+        {
+          type: "POST",
+          data,
+        }
+      );
+
+      const message = result.topic_title
+        ? I18n.t("admin.custom_webhook.channels.test_success_with_topic", {
+            topic: result.topic_title,
+          })
+        : I18n.t("admin.custom_webhook.channels.test_success");
+
+      this.dialog.alert(message);
+      this.cancelTest();
     } catch (e) {
       popupAjaxError(e);
+    } finally {
+      this.testLoading = false;
     }
   }
 

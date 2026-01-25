@@ -6,3 +6,4 @@ en:
     test:
       success: "Test notification sent successfully"
       no_posts: "No posts available for testing"
+      topic_not_found: "Topic not found"
