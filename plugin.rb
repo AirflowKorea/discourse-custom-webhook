@@ -39,7 +39,7 @@ after_initialize do
                class_name: "DiscourseCustomWebhook::Channel",
                foreign_key: :custom_webhook_channel_id
 
-    enum filter: { watch: 0, follow: 1, mute: 2 }
+    enum :filter, { watch: 0, follow: 1, mute: 2 }
 
     validates :filter, presence: true
 
