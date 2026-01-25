@@ -1,4 +1,10 @@
 en:
+  js:
+    custom_webhook:
+      filters:
+        watch: "Watch - New topics + all replies"
+        follow: "Follow - New topics only (no replies)"
+        mute: "Mute - Block notifications for this rule"
   admin_js:
     admin:
       custom_webhook:
@@ -36,8 +42,3 @@ en:
           tags_any: "Any tags"
           priority: "Priority"
           no_rules: "No rules configured. Add a rule to specify what triggers notifications."
-  custom_webhook:
-    filters:
-      watch: "Watch - All posts (topics and replies)"
-      follow: "Follow - New topics only"
-      mute: "Mute - Block notifications"

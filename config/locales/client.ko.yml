@@ -1,4 +1,10 @@
 ko:
+  js:
+    custom_webhook:
+      filters:
+        watch: "모두 알림 - 새 토픽 + 댓글/답글 포함"
+        follow: "첫 글만 - 새 토픽만 알림 (댓글 제외)"
+        mute: "알림 차단 - 이 조건에 해당하면 알림 안 함"
   admin_js:
     admin:
       custom_webhook:
@@ -36,8 +42,3 @@ ko:
           tags_any: "모든 태그"
           priority: "우선순위"
           no_rules: "설정된 규칙이 없습니다. 알림 조건을 지정하려면 규칙을 추가하세요."
-  custom_webhook:
-    filters:
-      watch: "Watch - 모든 게시글 (토픽 + 댓글)"
-      follow: "Follow - 새 토픽만"
-      mute: "Mute - 알림 차단"
