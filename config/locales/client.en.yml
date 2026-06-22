@@ -1,6 +1,7 @@
 en:
   js:
     custom_webhook:
+      name: "Baram-Gapvi (Custom Webhook)"
       filters:
         watch: "Watch - New topics + all replies"
         follow: "Follow - New topics only (no replies)"
@@ -8,7 +9,7 @@ en:
   admin_js:
     admin:
       custom_webhook:
-        title: "Custom Webhook"
+        title: "Baram-Gapvi (Custom Webhook)"
         description: "Configure webhook channels and notification rules"
         channels:
           title: "Channels"
