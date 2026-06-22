@@ -1,7 +1,7 @@
 en:
   js:
     custom_webhook:
-      name: "Baram-Gapvi (Custom Webhook)"
+      title: "Baram-Gapvi (Custom Webhook)"
       filters:
         watch: "Watch - New topics + all replies"
         follow: "Follow - New topics only (no replies)"
