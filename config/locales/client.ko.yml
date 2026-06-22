@@ -1,6 +1,7 @@
 ko:
   js:
     custom_webhook:
+      title: "바람개비 커스텀 웹훅"
       filters:
         watch: "모두 알림 - 새 토픽 + 댓글/답글 포함"
         follow: "첫 글만 - 새 토픽만 알림 (댓글 제외)"
@@ -8,7 +9,7 @@ ko:
   admin_js:
     admin:
       custom_webhook:
-        title: "커스텀 웹훅"
+        title: "바람개비 커스텀 웹훅"
         description: "웹훅 채널과 알림 규칙을 설정합니다"
         channels:
           title: "채널"
